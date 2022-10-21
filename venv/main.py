@@ -10,6 +10,37 @@ TOKEN = os.getenv('TELE_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 companion = ['Аня', 'Павел', 'Анастасия', 'Григорий', 'Азамат', 'Денис', 'Алия']
 
+#from django.db import models
+
+# Create your models here.
+# class Article(models.Model):
+# article_title=models.CharField('Название статьи',max_length=200)
+# article_text=models.TextField('Текст статьи')
+# pub_date=models.DateTimeField('Дата публикации')
+# class Comment(models.Model):
+# article=models.ForeignKey(Article,on_delete=models.CASCADE)
+# author_name=models.CharField('Имя автора',max_length=50)
+# comment_text=models.CharField('Текст комментария',max_length=200)
+
+# conn = sqlite3.connect('share/main.py', check_same_thread=False)
+# cursor = conn.cursor()
+#
+# @bot.message_handler(content_types=['text'])
+# def get_text_messages(message):
+#     if message.text.lower() == 'привет':
+#         bot.send_message(message.chat.id, 'Привет! Ваше имя добавлено в базу данных!')
+#
+#         us_id = message.from_user.id
+#         us_name = message.from_user.first_name
+#         us_sname = message.from_user.last_name
+#         username = message.from_user.username
+#
+#         db_table_val(user_id=us_id, user_name=us_name, user_surname=us_sname, username=username)
+
+# def db_table_val(user_id: int, user_name: str, user_surname: str, username: str):
+# 	cursor.execute('INSERT INTO test (user_id, user_name, user_surname, username) VALUES (?, ?, ?, ?)', (user_id, user_name, user_surname, username))
+# 	conn.commit()
+
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -19,6 +50,13 @@ def start(message):
     markup.add(btn1, btn2, help_btn)
     bot.send_message(message.chat.id, text="Привет, {0.first_name}! Я бот, который рандомно выберет тебе собеседника для совместного чаепития".format(
                          message.from_user), reply_markup=markup)
+
+connection = sqlite3.connect('User.db')
+cursor = connection.cursor()
+cursor.execute('''CREATE TABLE IF NOT EXISTS User
+              (Name TEXT, Surname TEXT, ID INT)''')
+connection.commit()
+connection.close()
 
 @bot.message_handler(content_types=['text'])
 def func(message):
