@@ -9,31 +9,23 @@ from telebot import types
 
 TOKEN = os.getenv('TELE_TOKEN')
 bot = telebot.TeleBot(TOKEN)
-#companion =
-# ['Аня', 'Павел', 'Анастасия', 'Григорий', 'Азамат', 'Денис', 'Алия']
 
 # Создаем соединение с БД
 connection = sqlite3.connect('User.db', check_same_thread=False)
 # Курсор это обьект который делает запросы и получает из результаты
 cursor = connection.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS User
-              (Name TEXT, Surname TEXT, ID INT)''')
-
+              (Name TEXT, Surname TEXT, ID INT, UNIQUE ("ID") ON CONFLICT REPLACE)''')
 
 def db_table_val(Name, Surname, ID):
     pass
 #def db_table_val(Name, Surname, ID):
     #cursor.execute('INSERT INTO User (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
         # cursor.execute(f'INSERT INTO {message.from_user.name} (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
-        # Делаем запрос к БД
-    # cursor.execute("SELECT ID FROM User ORDER BY ID LIMIT 1 ")
-    #     # Получаем результат запроса
-    # results = cursor.fetchone()
-    # print(results)
+
     cursor.execute('INSERT INTO User (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
     connection.commit()
     connection.close()
-
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -46,7 +38,6 @@ def start(message):
     bot.send_message(message.chat.id,
                      text="Привет, {0.first_name}! Я бот, который рандомно выберет тебе собеседника для совместного чаепития".format(
                          message.from_user), reply_markup=markup)
-
 
 @bot.message_handler(content_types=['text'])
 def func(message):
@@ -67,12 +58,13 @@ def func(message):
                                           '\n А если хочешь вернуться в меню нажми "start"',
                          reply_markup=markup)
     elif message.text == "Пора пить чай!":
-        cursor.execute("SELECT ID FROM User ORDER BY ID LIMIT 1 ")
+        # Делаем запрос к БД
+        cursor.execute("SELECT Name FROM User ORDER BY Name LIMIT 1 ")
+        # Получаем результат запроса
         results = cursor.fetchone()
         connection.close()
         #print(results)
         bot.send_message(message.chat.id, random.choice(results))
-
 
     elif message.text == "/help":
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
