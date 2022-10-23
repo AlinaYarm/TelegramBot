@@ -47,7 +47,22 @@ def func(message):
         us_sname = message.from_user.last_name
         us_id = message.from_user.id
         db_table_val(Name=us_name, Surname=us_sname, ID=us_id)
-    elif message.text == "👋 Поздороваться":
+
+        # with sq.connect('base.db') as con:
+        #     cur = con.cursor()
+        #     cur.execute('''SELECT userid FROM users''')
+        #     ALLuser = cur.fetchall()
+        #
+        # if userid in ALLuser:
+        #     print('Такой ID уже есть')
+        # else:
+        #     with sq.connect('base.db') as con:
+        #         cur = con.cursor()
+        #     cur.execute('''INSERT INTO users(userid) VALUES(?)''', (userid))
+
+@bot.message_handler(content_types=['text'])
+def func(message):
+    if message.text == "👋 Поздороваться":
         bot.send_message(message.chat.id, text="Привеет.. Спасибо что ты с нами!)")
     elif message.text == "Начать чаепитие ☕️":
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
