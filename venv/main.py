@@ -3,38 +3,36 @@ import telebot
 
 import os
 import random
+# import pandas as pd
 
 from telebot import types
 
 TOKEN = os.getenv('TELE_TOKEN')
 bot = telebot.TeleBot(TOKEN)
-companion = ['Аня', 'Павел', 'Анастасия', 'Григорий', 'Азамат', 'Денис', 'Алия']
+#companion =
+# ['Аня', 'Павел', 'Анастасия', 'Григорий', 'Азамат', 'Денис', 'Алия']
 
-#from django.db import models
-
-# Create your models here.
-# class Article(models.Model):
-# article_title=models.CharField('Название статьи',max_length=200)
-# article_text=models.TextField('Текст статьи')
-# pub_date=models.DateTimeField('Дата публикации')
-# class Comment(models.Model):
-# article=models.ForeignKey(Article,on_delete=models.CASCADE)
-# author_name=models.CharField('Имя автора',max_length=50)
-# comment_text=models.CharField('Текст комментария',max_length=200)
-
+# Создаем соединение с БД
 connection = sqlite3.connect('User.db', check_same_thread=False)
+# Курсор это обьект который делает запросы и получает из результаты
 cursor = connection.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS User
               (Name TEXT, Surname TEXT, ID INT)''')
-#, User_code INT
-connection.commit()
-#connection.close()
 
 
-def db_table_val(Name: str, Surname: str, ID: int):
+def db_table_val(Name, Surname, ID):
+    pass
+#def db_table_val(Name, Surname, ID):
+    #cursor.execute('INSERT INTO User (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
+        # cursor.execute(f'INSERT INTO {message.from_user.name} (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
+        # Делаем запрос к БД
+    # cursor.execute("SELECT ID FROM User ORDER BY ID LIMIT 1 ")
+    #     # Получаем результат запроса
+    # results = cursor.fetchone()
+    # print(results)
     cursor.execute('INSERT INTO User (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
-    #cursor.execute(f'INSERT INTO {message.from_user.name} (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
     connection.commit()
+    connection.close()
 
 
 @bot.message_handler(commands=['start'])
@@ -44,8 +42,9 @@ def start(message):
     btn1 = types.KeyboardButton("👋 Поздороваться")
     btn2 = types.KeyboardButton("Начать чаепитие ☕️")
     help_btn = telebot.types.KeyboardButton("/help")
-    markup.add(btn1, btn2,btn_add, help_btn)
-    bot.send_message(message.chat.id, text="Привет, {0.first_name}! Я бот, который рандомно выберет тебе собеседника для совместного чаепития".format(
+    markup.add(btn1, btn2, btn_add, help_btn)
+    bot.send_message(message.chat.id,
+                     text="Привет, {0.first_name}! Я бот, который рандомно выберет тебе собеседника для совместного чаепития".format(
                          message.from_user), reply_markup=markup)
 
 
@@ -56,9 +55,7 @@ def func(message):
         us_name = message.from_user.first_name
         us_sname = message.from_user.last_name
         us_id = message.from_user.id
-        #us_code = message.from_user.code
-        db_table_val(Name = us_name, Surname = us_sname, ID = us_id)
-        #, User_code=us_code)
+        db_table_val(Name=us_name, Surname=us_sname, ID=us_id)
     elif message.text == "👋 Поздороваться":
         bot.send_message(message.chat.id, text="Привеет.. Спасибо что ты с нами!)")
     elif message.text == "Начать чаепитие ☕️":
@@ -70,7 +67,12 @@ def func(message):
                                           '\n А если хочешь вернуться в меню нажми "start"',
                          reply_markup=markup)
     elif message.text == "Пора пить чай!":
-        bot.send_message(message.chat.id, random.choice(companion))
+        cursor.execute("SELECT ID FROM User ORDER BY ID LIMIT 1 ")
+        results = cursor.fetchone()
+        connection.close()
+        #print(results)
+        bot.send_message(message.chat.id, random.choice(results))
+
 
     elif message.text == "/help":
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
