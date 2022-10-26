@@ -4,7 +4,7 @@ import telebot
 import os
 import random
 # import pandas as pd
-#from core import models.User
+# from core import models.User
 from telebot import types
 
 TOKEN = os.getenv('TELE_TOKEN')
@@ -19,18 +19,15 @@ cursor = connection.cursor()
 # cursor.execute('''CREATE TABLE IF NOT EXISTS User
 #               (Name TEXT, Surname TEXT, ID INT, UNIQUE ("ID") ON CONFLICT REPLACE)''')
 
-def db_table_val(Name, ID):
+def db_table_val(username, user_id):
     pass
 
-
-# def db_table_val(Name, Surname, ID):
-# cursor.execute('INSERT INTO User (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
-# cursor.execute(f'INSERT INTO {message.from_user.name} (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
-
-# cursor.execute('INSERT INTO core_user, (Name, ID)')
-    cursor.execute('INSERT INTO core_user (Name, ID) VALUES (?, ?)', (Name, ID))
+    # def db_table_val(Name, Surname, ID):
+    # cursor.execute('INSERT INTO User (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
+    # cursor.execute(f'INSERT INTO {message.from_user.name} (Name, Surname, ID) VALUES (?, ?, ?)', (Name, Surname, ID))
+    cursor.execute('INSERT INTO core_user (username, user_id) VALUES (?, ?)', (username, user_id))
     connection.commit()
-    connection.close()
+    # connection.close()
 
 
 @bot.message_handler(commands=['start'])
@@ -76,7 +73,7 @@ def func(message):
         # us_sname = message.from_user.last_name
         us_id = message.from_user.id
 
-        db_table_val(Name=us_name, ID=us_id)
+        db_table_val(username=us_name, user_id=us_id)
     elif message.text == "👋 Поздороваться":
         bot.send_message(message.chat.id, text="Привеет.. Спасибо что ты с нами!)")
     elif message.text == "Начать чаепитие ☕️":
@@ -119,5 +116,7 @@ def func(message):
     else:
         bot.send_message(message.chat.id, text="На такую команду я не запрограммирован..")
 
+
+# connection.close()
 
 bot.polling(none_stop=True)
