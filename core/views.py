@@ -1,8 +1,8 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView, ListView
 # from django.utils import timezone
 from core import models
-
 
 
 class Index(TemplateView):

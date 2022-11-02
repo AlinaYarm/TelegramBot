@@ -18,8 +18,8 @@ cursor = connection.cursor()
 def db_table_val(username, user_id):
     pass
 
-    cursor.execute('INSERT INTO core_user (username, user_id) VALUES (?, ?)', (username, user_id))
-    connection.commit()
+    # cursor.execute('INSERT INTO core_user (username, user_id) VALUES (?, ?)', (username, user_id))
+    # connection.commit()
     # connection.close()
 
 
@@ -35,16 +35,33 @@ def start(message):
                      text="Привет, {0.first_name}! Я бот, который рандомно выберет тебе собеседника для совместного чаепития".format(
                          message.from_user), reply_markup=markup)
 
+@bot.message_handler(commands=["Добавь меня в базу!"])
+def func(message):
+    username = message.chat.id
+    with sqlite3.connect('db.sqlite3', check_same_thread=False) as connection:
+        cursor = connection.cursor()
+        cursor.execute('''SELECT username FROM core_user''')
+        ALLuser = cursor.fetchall()
+    if username in ALLuser:
+        print('Такой Пользователь уже есть в базе')
+    else:
+        with sqlite3.connect('db.sqlite3') as connection:
+            cursor = connection.cursor()
+            cursor.execute('''INSERT INTO core_user(username) VALUES(?)''', (username))
+            us_name = message.from_user.username
+            bot.send_message(message.from_user.id, "Привет! Ваше имя добавлено в базу данных!")
+
+            db_table_val(username=us_name)
 @bot.message_handler(content_types=['text'])
 def func(message):
-    if message.text == "Добавь меня в базу!":
-        bot.send_message(message.from_user.id, "Привет! Ваше имя добавлено в базу данных!")
-        us_name = message.from_user.username
-        # us_sname = message.from_user.last_name
-        us_id = message.from_user.id
-
-        db_table_val(username=us_name, user_id=us_id)
-    elif message.text == "👋 Поздороваться":
+    # if message.text == "Добавь меня в базу!":
+    #     bot.send_message(message.from_user.id, "Привет! Ваше имя добавлено в базу данных!")
+    #     us_name = message.from_user.username
+    #     # us_sname = message.from_user.last_name
+    #     us_id = message.from_user.id
+    #
+    #     db_table_val(username=us_name, user_id=us_id)
+    if message.text == "👋 Поздороваться":
         bot.send_message(message.chat.id, text="Привеет.. Спасибо что ты с нами!)")
     elif message.text == "Начать чаепитие ☕️":
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
